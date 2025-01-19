@@ -1,0 +1,410 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+
+<div class="container py-5">
+  <div class="card shadow-lg">
+    <div class="card-header text-white d-flex justify-content-between align-items-center" style="background-color:rgb(70, 14, 118);">
+      <h1 class="text-center mb-0 flex-grow-1">Meditrack Outpatient Billing System</h1>
+      <button class="btn btn-light" onclick="loadRecords()" data-bs-toggle="modal" data-bs-target="#recordsModal">
+        <i class="fas fa-clipboard-list me-2"></i>View All Records
+        <span class="badge bg-primary" id="recordCount"></span>
+      </button>
+    </div>
+   
+    <div class="card-body">
+      <form method="POST" id="patientForm" class="mt-4">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="patientName" class="form-label">Patient Name</label>
+              <input type="text" class="form-control" id="patientName" name="patientName" required>
+            </div>
+          </div>
+         
+          <div class="col-md-6">
+            <div class="form-group">
+                <label for="phoneNumber" class="form-label">Phone Number</label>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="phoneNumber" name="phoneNumber"
+                           pattern="[0-9]{10}" placeholder="e.g. 0701010101" required>
+                    <button type="button" class="btn btn-secondary" onclick="copyNumber()">
+                        Copy
+                    </button>
+                </div>
+            </div>
+            
+            </div>
+            
+          </div>
+
+          <div class="col-12">
+            <div class="form-group">
+              <label for="note" class="form-label">Patient Details</label>
+              <textarea name="note" id="note" class="form-control" rows="3" placeholder="eg. Diagnosis,Check ups,Medication,Doctors Details etc." required></textarea>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="paymentMethod" class="form-label">Payment Method</label>
+              <select class="form-control" id="paymentMethod" name="paymentMethod" required>
+                <option value="">Select Payment Method</option>
+                <option value="mpesa">M-Pesa</option>
+                <option value="cash">Cash</option>
+                <option value="insurance">Insurance</option>
+              </select>
+              <div id="mpesaButtonContainer"></div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="amount" class="form-label">Amount (KES)</label>
+              <input type="number" class="form-control" id="amount" name="amount" min="0" required>
+            </div>
+          </div>
+        </div>
+   <div class="text-center mt-1">
+          <button type="submit" class="btn btn-lg animated-btn">
+            <i class="fas fa-user-plus me-3"></i>New Patient
+          </button>
+        </div>
+       <div>     
+</div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="recordsModal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-clipboard-list me-2"></i>Patient Records
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body"><div class="mb-3">
+                <div class="input-group">
+                    <span class="input-group-text">
+                        <i class="fas fa-search"></i>
+                    </span>
+                    <input type="text" class="form-control" id="searchInput" placeholder="Search records...">
+                </div>
+            </div>
+            
+                <div class="table-responsive">
+                    <table class="table table-hover" id="recordsTable">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Patient Name</th>
+                                <th>Phone Number</th>
+                                <th style="width: 200px;">Patient Details</th>
+                                <th>Payment Method</th>
+                                <th>Amount</th>
+                                <th>Delete</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="d-flex justify-content-end mt-3">
+                    <h4>Total Amount: <span id="totalAmount" class="badge bg-primary">KES 0</span></h4>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+        .animated-btn {
+            background: linear-gradient(45deg, #28a745,rgb(70, 14, 118),rgb(70, 14, 118) );
+            background-size: 200% 200%;
+            color: white;
+            transition: all 0.3s ease;
+            animation: gradient 3s ease infinite;
+        }
+        
+        .animated-btn:hover {
+            transform: scale(1.05);
+            color: white;
+        }
+        
+        @keyframes gradient {
+            0% { background-position: 0% 60%; }
+            50% { background-position: 50% 50%; }
+            100% { background-position: 0% 60%; }
+        }
+    .details-tooltip {
+        position: relative;
+        cursor: pointer;
+        display: inline-block;
+        width: 100%;
+    }
+    .details-content {
+        max-width: 200px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    
+    .tooltip-popup {
+        display: none;
+        position: absolute;
+        background:white;
+        border: 1px solid #ddd;
+        padding: 15px;
+        border-radius: 4px;
+        width: 400px;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+        z-index: 1050;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        left: 0;
+        top: 100%;
+        margin-top: 5px;
+        line-height: 1.5;
+    }
+    
+    .details-tooltip:hover .tooltip-popup {
+        display: block;
+    }
+    
+    [data-theme="dark"] .tooltip-popup {
+        background: var(--card-bg);
+        color: var(--text-color);
+        border-color: var(--border-color);
+     }
+.modal-xl {
+    max-width: 96%;
+}
+.table-responsive {
+    max-height: 70vh;
+}
+.table th {
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 1;
+}
+[data-theme="dark"] .table th {
+    background:green;
+    color:white;
+}
+[data-theme="dark"] .modal-content {
+    background:rgba(93, 94, 84, 0.35);
+    color: white;
+}
+</style>
+
+<script>
+  function loadRecords() {
+    fetch('/get-records')
+        .then(response => response.json())
+        .then(records => {
+            const tbody = document.querySelector('#recordsTable tbody');
+            tbody.innerHTML = '';
+           
+            let totalAmount = records.reduce((sum, record) => sum + Number(record.amount), 0);
+
+            records.forEach(record => {
+                const localdate = new Date(record.date + 'Z');
+                const formattedDate = localdate.toLocaleString('en-KE', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true,
+                    timeZone: 'Africa/Nairobi'
+                });
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${formattedDate}</td>
+                    <td>${record.patientName}</td>
+                    <td>${record.phoneNumber}</td>
+                    <td>
+                       <div class="details-tooltip">
+                          <div class="details-content">${record.note}</div>
+                          <div class="tooltip-popup">${record.note}</div>
+                       </div> 
+
+                    </td>
+                    <td>${record.paymentMethod}</td>
+                    <td>KES ${record.amount}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteRecord(${record.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+            document.getElementById('totalAmount').textContent = `KES ${totalAmount.toLocaleString()}`;
+            document.getElementById('recordCount').textContent = records.length;
+        });
+}
+
+
+document.getElementById('patientForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = {
+        patientName: document.getElementById('patientName').value,
+        phoneNumber: document.getElementById('phoneNumber').value,
+        note: document.getElementById('note').value,
+        paymentMethod: document.getElementById('paymentMethod').value,
+        amount: document.getElementById('amount').value,
+        date: new Date().toISOString()
+    };
+
+    fetch('/add-record', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if(data.success) {
+            loadRecords();
+            this.reset();
+        }
+    });
+});
+function deleteRecord(recordId) {
+    if (confirm('Are you sure you want to delete this record?')) {
+        fetch('/delete-record', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ recordId: recordId })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.success) {
+                loadRecords();  // Refresh the records display
+                const modal = bootstrap.Modal.getInstance(document.getElementById('recordsModal'));
+                if (modal) {
+                    modal.show();  // Keep the modal open after deletion
+                }
+            }
+        });
+    }
+}
+
+document.addEventListener('DOMContentLoaded', loadRecords);
+</script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('searchInput').addEventListener('keyup', searchRecords);
+
+
+            const copyButton = document.querySelector('.btn-secondary');
+            if (copyButton) {
+                copyButton.addEventListener('click', function() {
+                    const phoneInput = document.getElementById('phoneNumber');
+                    const phoneNumber = phoneInput.value;
+                    
+                    // Copy to clipboard
+                    const tempTextArea = document.createElement('textarea');
+                    tempTextArea.value = phoneNumber;
+                    document.body.appendChild(tempTextArea);
+                    tempTextArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(tempTextArea);
+                    
+                    // Visual feedback
+                    this.textContent = '✓ Copied';
+                    setTimeout(() => {
+                        this.textContent = 'Copy';
+                    }, 1500);
+                });
+            }
+        });
+    </script>
+<script>
+    document.getElementById('paymentMethod').addEventListener('change', function() {
+        const mpesaButtonContainer = document.getElementById('mpesaButtonContainer');
+        if (this.value === 'mpesa') {
+            mpesaButtonContainer.innerHTML = `
+                <button type="button" class="btn btn-success mt-2" onclick="handleMpesaPayment()">
+                    <i class="fas fa-mobile-alt me-2"></i>
+                    Proceed to M-Pesa Payment
+                </button>
+            `;
+        } else {
+            mpesaButtonContainer.innerHTML = '';
+        }
+    });
+
+    function handleMpesaPayment() {
+        const formData = {
+            patientName: document.getElementById('patientName').value,
+            phoneNumber: document.getElementById('phoneNumber').value,
+            note: document.getElementById('note').value,
+            paymentMethod: document.getElementById('paymentMethod').value,
+            amount: document.getElementById('amount').value,
+            date: new Date().toISOString()
+        };
+
+        fetch('/add-record', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.success) {
+                window.location.href = '/mpesa-payment';
+                loadRecords();
+                document.getElementById('patientForm').reset();
+            }
+        });
+    }
+</script> 
+<script>
+function searchRecords() {
+    const searchInput = document.getElementById('searchInput');
+    const filter = searchInput.value.toLowerCase();
+    const tbody = document.querySelector('#recordsTable tbody');
+    const rows = tbody.getElementsByTagName('tr');
+
+    let totalAmount = 0;
+
+    for (let row of rows) {
+        const cells = row.getElementsByTagName('td');
+        let found = false;
+        
+        for (let cell of cells) {
+            if (cell.textContent.toLowerCase().includes(filter)) {
+                found = true;
+                break;
+            }
+        }
+        
+        row.style.display = found ? '' : 'none';
+        
+        if (found) {
+            const amountCell = cells[5].textContent;
+            const amount = parseFloat(amountCell.replace('KES ', ''));
+            totalAmount += amount;
+        }
+    }
+    
+    document.getElementById('totalAmount').textContent = `KES ${totalAmount.toLocaleString()}`;
+}
+</script>
+{% endblock %}
+

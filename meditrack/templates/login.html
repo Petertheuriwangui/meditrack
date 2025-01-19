@@ -1,0 +1,109 @@
+{% extends "base.html" %} 
+{% block title %}Login{% endblock %} 
+{% block content %}
+<div class="login-container">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card shadow-xl backdrop-blur">
+                    <div class="card-header bg-success text-white text-center">
+                        <h3 class="mb-0 fw-bold">Welcome to Meditrack</h3>
+                    </div>
+                    <div class="card-body p-4">
+                        <form method="POST">
+                            <div class="form-group mb-3">
+                                <label for="email" class="form-label fw-bold text-white">Email Address</label>
+                                <div class="input-group input-group-lg hover-effect">
+                                    <span class="input-group-text"><i class="fas fa-envelope-open"></i></span>
+                                    <input type="email" class="form-control custom-input" id="email" name="email" 
+                                        placeholder="Enter your email" required />
+                                </div>
+                            </div>
+                            
+                            <div class="form-group mb-4">
+                                <label for="password" class="form-label fw-bold text-white">Password</label>
+                                <div class="input-group input-group-lg hover-effect">
+                                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                    <input type="password" class="form-control custom-input" id="password" name="password" 
+                                        placeholder="Enter your password" required />
+                                </div>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-success btn-lg custom-button">
+                                    <i class="fas fa-sign-in-alt me-2"></i>Login
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.login-container {
+    background-image: url('https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80');
+    background-size: cover;
+    background-position: center;
+    min-height: 100vh;
+    position: relative;
+}
+
+.backdrop-blur {
+    background: rgba(49, 38, 57, 0.28);
+    backdrop-filter: blur(10px);
+    border: none;
+    border-radius: 30px;
+}
+
+.card {
+    transition: transform 0.9s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.custom-input {
+    border: 2px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.custom-input:focus {
+    border-color:rgb(5, 255, 109);
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.input-group-text {
+    background-color:rgb(11, 131, 83);
+    color: white;
+    border: none;
+}
+
+.hover-effect:hover .input-group-text {
+    background-color:rgb(108, 208, 239);
+}
+
+.custom-button {
+    transition: all 0.3s ease;
+    font-weight: bold;
+    padding: 8px;
+}
+
+.custom-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 3px 1px rgba(253, 73, 13, 0.3);
+}
+
+.card-header {
+    border-radius: 20px 20px 0 0;
+    padding: 1rem;
+}
+
+.shadow-xl {
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+</style>
+{% endblock %}

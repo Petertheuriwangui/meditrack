@@ -1,0 +1,28 @@
+.theme-transition {
+    transition: all 0.3s ease;
+}
+
+.theme-text {
+    color: var(--text-color);
+    transition: color 0.3s ease;
+}
+
+.theme-text-secondary {
+    color: var(--text-color);
+    opacity: 0.7;
+    transition: color 0.3s ease;
+}
+
+.theme-icon {
+    color: var(--accent-color);
+    transition: color 0.3s ease;
+}
+
+.theme-divider {
+    border-color: var(--border-color);
+    opacity: 0.2;
+}
+
+[data-theme="dark"] .theme-icon {
+    color: var(--accent-color);
+}

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MediTrack Payment</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        .container {
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+        }
+        #response {
+            margin-top: 20px;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>M-Pesa Payment</h2>
+        <div class="form-group">
+            <label>Phone Number (254XXXXXXXXX)</label>
+            <input type="text" id="phone_number" required>
+        </div>
+        <div class="form-group">
+            <label>Amount (KES)</label>
+            <input type="number" id="amount" required>
+        </div>
+        <button onclick="initiatePayment()">Pay Now</button>
+        <div id="response"></div>
+    </div>
+
+    <script>
+        function initiatePayment() {
+            const phoneNumber = document.getElementById('phone_number').value;
+            const amount = document.getElementById('amount').value;
+
+            $.ajax({
+                url: '/initiate_payment',
+                method: 'POST',
+                data: {
+                    phone_number: phoneNumber,
+                    amount: amount
+                },
+                success: function(response) {
+                    $('#response').html('Payment initiated successfully. Please check your phone.');
+                    console.log(response);
+                },
+                error: function(error) {
+                    $('#response').html('Error initiating payment. Please try again.');
+                    console.log(error);
+                }
+            });
+        }
+    </script>
+</body>
+</html>
